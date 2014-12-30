@@ -20,22 +20,20 @@ def printstr(str): # print without newline
     sys.stdout.write(str)
     sys.stdout.flush()
 
-def shell(cmdline): # execute shell commands (unicode support)
-    call(cmdline, shell=True)
-
 def rip_init(session, track):
     global pipe, ripping, pcmfile, rawpcm
     num_track = "%02d" % (track.index(),)
-    mp3file = track.name()+".mp3"
-    pcmfile = track.name()+".pcm"
-    directory = os.getcwd() + "/" + track.artists()[0].name() + "/" + track.album().name() + "/"
+    file_prefix = os.getcwd() + "/" + track.artists()[0].name() + "/" + track.album().name() + "/" + track.name()
+    file_prefix = file_prefix.replace('*', '_')
+    mp3file = file_prefix+".mp3"
+    directory = os.path.dirname(file_prefix)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    printstr("ripping " + mp3file + " ...")
-    p = Popen("lame --silent -V0 -h -r - \""+ directory + mp3file+"\"", stdin=PIPE, shell=True)
+    printstr("ripping " + file_prefix + ".mp3 ...")
+    p = Popen(["lame", "--silent", "-V0", "-h", "-r", "-", file_prefix + ".mp3"], stdin=PIPE)
     pipe = p.stdin
     if rawpcm:
-      pcmfile = open(directory + pcmfile, 'w')
+      pcmfile = open(file_prefix + ".pcm", 'w')
     ripping = True
 
 
@@ -73,19 +71,19 @@ def rip_id3(session, track): # write ID3 data
     fh_cover.close()
 
     # write id3 data
-    cmd = "eyeD3" + \
-          " --add-image cover.jpg:FRONT_COVER" + \
-          " -t \"" + title + "\"" + \
-          " -a \"" + artist + "\"" + \
-          " -A \"" + album + "\"" + \
-          " -n " + str(num_track) + \
-          " -Y " + str(year) + \
-          " -Q " + \
-          " \"" + directory + mp3file + "\""
-    shell(cmd)
+    call(["eyeD3",
+          "--add-image", "cover.jpg:FRONT_COVER",
+          "-t", title,
+          "-a", artist,
+          "-A", album,
+          "-n", str(num_track),
+          "-Y", str(year),
+          "-Q",
+          (directory + mp3file).replace('*', '_')
+    ])
 
     # delete cover
-    shell("rm -f cover.jpg")
+    call(["rm", "-f", "cover.jpg"])
 
 class RipperThread(threading.Thread):
     def __init__(self, ripper):
