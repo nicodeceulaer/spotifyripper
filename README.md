@@ -1,41 +1,58 @@
 spotifyripper
 =============
 
-small ripper script for spotify (rips playlists to mp3 and includes ID3 tags)
+small ripper script for spotify (rips playlists to mp3 and includes ID3 tags and album covers)
 
 note that stream ripping violates the ToC's of libspotify!
 
-usage
------
-    ./jbripper.py [username] [password] [spotify_url]
-
-examples
+Usage:
 --------
-    "./jbripper.py user pass spotify:track:52xaypL0Kjzk0ngwv3oBPR" creates "Beat It.mp3" file
-    "./jbripper.py user pass spotify:user:[user]:playlist:7HC9PMdSbwGBBn3EVTaCNx rips entire playlist
 
-features
---------
-* real-time VBR ripping from spotify PCM stream
+    usage: jbripper [-h] -u USER -p PASSWORD -U URL [-l [LIBRARY]] [-O OUTPUTDIR]
+                    [-P] [-V VBR] [-I] [-f | -d]
 
-* writes id3 tags (including album covers)
+    Rip Spotify songs
 
-* creates files and directories based on the following structure artist/album/song.mp3
+    optional arguments:
+      -h, --help            show this help message and exit
+      -u USER, --user USER  spotify user
+      -p PASSWORD, --password PASSWORD
+                            spotify password
+      -U URL, --url URL     spotify url
+      -l [LIBRARY], --library [LIBRARY]
+                            music library path
+      -O OUTPUTDIR, --outputdir OUTPUTDIR
+                            music output dir (default is current working directory)
+      -P, --playback        set if you want to listen to the tracks that are currently ripped (start with "padsp ./jbripper.py ..." if using pulse audio)
+      -V VBR, --vbr VBR     Lame VBR quality setting. Equivalent to Lame -V parameter. Default 0
+      -I, --ignoreerrors    Ignore encountered errors by skipping to next track in playlist
+      -o, --oldtags         set to write ID3v2 tags version 2.3.0 instead of newer version 2.4.0
+      -f, --file            Save output mp3 file with the following format: "Artist - Song - [ Album ].mp3" (default)
+      -d, --directory       Save output mp3 to a directory with the following format: "Artist/Album/Song.mp3"
+
+    Example usage:
+            rip a single file: ./jbripper.py -u user -p password -U spotify:track:52xaypL0Kjzk0ngwv3oBPR
+            rip entire playlist: ./jbripper.py -u user -p password -U spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+            check if file exists before ripping: ./jbripper.py -u user -p password -U spotify:track:52xaypL0Kjzk0ngwv3oBPR -l ~/Music
+
+
+features:
+----------
+
+- real-time VBR ripping from spotify PCM stream
+- writes id3 tags (including album cover)
+- Check for existing songs
 
 prerequisites:
---------------
-* libspotify (download at https://developer.spotify.com/technologies/libspotify/)
+---------------
+- Python 2 (if P3 is also install change env to python2 and use pip2)
+- libspotify (download at https://developer.spotify.com/technologies/libspotify/)
+- pyspotify (sudo pip install -U pyspotify)
+- spotify appkey (download at developer.spotify.com, requires Spotify Premium)
+- jukebox.py (pyspotify example)
+- lame (sudo apt-get install lame)
+- eyeD3 (pip install eyeD3)
 
-* pyspotify (sudo pip install -U pyspotify, requires python-dev)
-
-* spotify binary appkey (download at developer.spotify.com and copy to wd, requires premium!)
-
-* lame (sudo apt-get install lame)
-
-* eyeD3 (sudo pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3)
-
-TODO
-----
-- [ ] skip exisiting track (avoid / completed tracks / completed = successful id3)
+TODO:
+------
 - [ ] detect if other spotify instance is interrupting
-- [ ] add album supprt : spotify:album:1UnRYaeCev9JVKEHWBEgHe
